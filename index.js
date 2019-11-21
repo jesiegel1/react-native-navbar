@@ -11,6 +11,8 @@ import ViewPropTypes from './lib';
 import NavbarButton from './NavbarButton';
 import styles from './styles';
 
+const majorVersionIOS = parseInt(Platform.Version.toString(), 10);
+
 const ButtonShape = {
   title: PropTypes.string.isRequired,
   style: ViewPropTypes.style,
@@ -31,11 +33,12 @@ const StatusBarShape = {
   tintColor: PropTypes.string,
   hideAnimation: PropTypes.oneOf(['fade', 'slide', 'none']),
   showAnimation: PropTypes.oneOf(['fade', 'slide', 'none']),
+  height: PropTypes.number
 };
 
 function getButtonElement(data, style) {
   return (
-    <View style={styles.navBarButtonContainer}>
+    <View style={[styles.navBarButtonContainer, style.containerMargin]}>
       {(!data || data.props) ? data : (
         <NavbarButton
           title={data.title}
@@ -44,6 +47,7 @@ function getButtonElement(data, style) {
           handler={data.handler}
           accessible={data.accessible}
           accessibilityLabel={data.accessibilityLabel}
+          textStyle={data.textStyle}
         />
       )}
     </View>
@@ -87,6 +91,7 @@ export default class NavigationBar extends Component {
       PropTypes.oneOf([null]),
     ]),
     containerStyle: ViewPropTypes.style,
+    isModal: PropTypes.bool
   };
 
   static defaultProps = {
@@ -102,6 +107,7 @@ export default class NavigationBar extends Component {
       showAnimation: 'slide',
     },
     containerStyle: {},
+    isModal: false
   };
 
   componentDidMount() {
@@ -141,20 +147,24 @@ export default class NavigationBar extends Component {
     const customStatusBarTintColor = this.props.statusBar.tintColor ?
       { backgroundColor: this.props.statusBar.tintColor } : null;
 
+    const customStatusBarHeight = { height: this.props.statusBar.height };
+
     let statusBar = null;
 
     if (Platform.OS === 'ios') {
       statusBar = !this.props.statusBar.hidden ?
-        <View style={[styles.statusBar, customStatusBarTintColor]} /> : null;
+        <View style={[styles.statusBar, customStatusBarTintColor, customStatusBarHeight]} /> : null;
     }
+
+    let navBarHeight = majorVersionIOS >= 13 && this.props.isModal ? 56 : 44
 
     return (
       <View style={[styles.navBarContainer, containerStyle, customTintColor]}>
         {statusBar}
-        <View style={[styles.navBar, style]}>
+        <View style={[styles.navBar, { height: navBarHeight }, style]}>
           {getTitleElement(title)}
-          {getButtonElement(leftButton, { marginLeft: 8 })}
-          {getButtonElement(rightButton, { marginRight: 8 })}
+          {getButtonElement(leftButton, { marginLeft: 8, containerMargin: { marginLeft: 8 } })}
+          {getButtonElement(rightButton, { marginRight: 8, containerMargin: { marginRight: 8 } })}
         </View>
       </View>
     );
