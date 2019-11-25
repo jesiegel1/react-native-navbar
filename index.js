@@ -11,7 +11,6 @@ import ViewPropTypes from './lib';
 import NavbarButton from './NavbarButton';
 import styles from './styles';
 
-const majorVersionIOS = parseInt(Platform.Version.toString(), 10);
 
 const ButtonShape = {
   title: PropTypes.string.isRequired,
@@ -156,7 +155,8 @@ export default class NavigationBar extends Component {
         <View style={[styles.statusBar, customStatusBarTintColor, customStatusBarHeight]} /> : null;
     }
 
-    let navBarHeight = majorVersionIOS >= 13 && this.props.isModal ? 56 : 44
+    const majorVersionIOS = parseInt(Platform.Version, 10);
+    const navBarHeight = majorVersionIOS >= 13 && this.props.isModal ? 56 : 44
 
     return (
       <View style={[styles.navBarContainer, containerStyle, customTintColor]}>
